@@ -1,0 +1,11 @@
+.#
+.*~
+*~
+.git_backup
+.emacs.d/*.dat
+.emacs.d/auto-save-list/*
+.emacs.d/ac-comphist.dat
+.emacs.d/%backup%*
+.DS_Store
+
+.emacs.d/etc/template/cpp_office
