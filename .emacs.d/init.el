@@ -215,3 +215,22 @@
 (add-hook 'c++-mode-hook
           '(lambda()
              (flymake-mode t)))
+
+;;; anything
+;; (auto-install-batch "anything")
+(when (require 'anything nil t)
+  (setq
+   ;; 候補を表示するまでの時間。デフォルトは0.5
+   anything-idle-delay 0.3
+   ;; タイプして再描写するまでの時間。デフォルトは0.1
+   anything-input-idle-delay 0.2
+   ;; 候補の最大表示数。デフォルトは50
+   anything-candidate-number-limit 100
+   ;; 候補が多いときに体感速度を早くする
+   anything-quick-update t
+   ;; 候補選択ショートカットをアルファベットに
+   anything-enable-shortcuts 'alphabet)
+
+  (when (require 'anything-config nil t)
+    ;; root権限でアクションを実行するときのコマンド
+))
