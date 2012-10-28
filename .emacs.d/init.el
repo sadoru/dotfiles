@@ -48,11 +48,6 @@
 ;  '("monaco" . "iso10646-1")))
   '("monaco" . "iso10646-1")))
 
-;; tab
-(setq-default tab-width 4)
-;; インデントにタブ文字使用しない
-(setq-default indent-tabs-mode nil)
-
 ;; デフォルトの透明度を設定する
 (add-to-list 'default-frame-alist '(alpha . 95))
 ;; Color-theme
@@ -64,6 +59,14 @@
   (color-theme-zenburn)
   ; https://github.com/credmp/color-theme-zenburn/blob/master/zenburn.el
   )
+
+;; タイトルバーにファイルのフルパスを表示
+(setq frame-title-format "%f")
+
+;; tab
+(setq-default tab-width 4)
+;; インデントにタブ文字使用しない
+(setq-default indent-tabs-mode nil)
 
 ;; 現在行のハイライト
 (defface my-hl-line-face
@@ -93,15 +96,20 @@
 (setq auto-save-file-name-transforms
       `((".*" ,(expand-file-name "~/.emacs.d/backups/") t)))
 
+;; redo+の設定
+(when (require 'redo+ nil t)
+  ;; C-' にリドゥを割り当てる
+  (global-set-key (kbd "C-'") 'redo)
+  ;; 日本語キーボードの場合は C-. がいいかも
+  ;(global-set-key (kbd "C-.") 'redo)
+  )
+
 ;; C-mにnewline-and-indent
 (global-set-key (kbd "C-m") 'newline-and-indent)
 ;; 折り返しトグルコマンド
 (define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
 ;; "C-t"でウィンドウを切り替える
 (define-key global-map (kbd "C-t") 'other-window)
-
-;; タイトルバーにファイルのフルパスを表示
-(setq frame-title-format "%f")
 
 ;; auto-installの設定
 (when (require 'auto-install nil t)
@@ -121,51 +129,45 @@
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
   (ac-config-default))
 
-;; redo+の設定
-(when (require 'redo+ nil t)
-  ;; C-' にリドゥを割り当てる
-  (global-set-key (kbd "C-'") 'redo)
-  ;; 日本語キーボードの場合は C-. がいいかも
-  ;(global-set-key (kbd "C-.") 'redo)
-  )
+;;; anything
+;; (auto-install-batch "anything")
+(when (require 'anything nil t)
+  (setq
+   ;; 候補を表示するまでの時間。デフォルトは0.5
+   anything-idle-delay 0.3
+   ;; タイプして再描写するまでの時間。デフォルトは0.1
+   anything-input-idle-delay 0.2
+   ;; 候補の最大表示数。デフォルトは50
+   anything-candidate-number-limit 100
+   ;; 候補が多いときに体感速度を早くする
+   anything-quick-update t
+   ;; 候補選択ショートカットをアルファベットに
+   anything-enable-shortcuts 'alphabet)
 
-;; Obj-C
-;; <参考>http://sakito.jp/emacs/emacsobjectivec.html#emacs-objective-c
-(add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@implementation" . objc-mode))
-(add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@interface" . objc-mode))
-(add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@protocol" . objc-mode))
+  (when (require 'anything-config nil t)
+    ;; root権限でアクションを実行するときのコマンド
+    ;; デフォルトは"su"
+    (setq anything-su-or-sudo "sudo"))
 
-(ffap-bindings)
-;; 探すパスは ffap-c-path で設定する
-;; (setq ffap-c-path
-;;     '("/usr/include" "/usr/local/include"))
-;(setq ffap-c-path
-;	  '("/Developer/Platforms"))
-;; 新規ファイルの場合には確認する
-(setq ffap-newfile-prompt t)
-;; ffap-kpathsea-expand-path で展開するパスの深さ
-(setq ffap-kpathsea-depth 5)
+  (require 'anything-match-plugin nil t)
 
-(setq ffap-other-file-alist
-	  '(("\\.mm?$" (".h"))
-		("\\.cc$" (".hh" ".h"))
-		("\\.hh$" (".cc" ".C"))
+  (when (and (executable-find "cmigemo")
+             (require 'migemo nit t))
+    (require 'anything-migemo nil t))
 
-		("\\.c$" (".h"))
-		("\\.h$" (".c" ".cc" ".C" ".CC" ".cxx" ".cpp" ".m" ".mm"))
+  (when (require 'anything-complete nil t)
+    ;; lispシンボルの補完候補の再検索時間
+    (anything-lisp-complete-symbol-set-timer 150))
 
-		("\\.C$" (".H" ".hh" ".h"))
-		("\\.H$" (".C" ".CC"))
-		("\\.CC$"  (".HH" ".H"  ".hh" ".h"))
-		("\\.HH$"  (".CC"))
+  (require 'anything-show-completion nil t)
 
-		("\\.cxx$" (".hh" ".h"))
-		("\\.cpp$" (".hpp" ".hh" ".h"))
+  (when (require 'auto-install nil t)
+    (require 'anything-auto-install nil t))
 
-		("\\.hpp$" (".cpp" ".c"))))
-(add-hook 'objc-mode-hook
-		  (lambda ()
-			(define-key c-mode-base-map (kbd "C-c o") 'ff-find-other-file)))
+  (when (require 'descbinds-anything nil t)
+    ;; describe-bindingsをAnythingに置き換える
+    (descbinds-anything-install)))
+
 
 ;; C++
 ; ヘッダファイル(.h)をc++モードで開く
@@ -216,41 +218,40 @@
           '(lambda()
              (flymake-mode t)))
 
-;;; anything
-;; (auto-install-batch "anything")
-(when (require 'anything nil t)
-  (setq
-   ;; 候補を表示するまでの時間。デフォルトは0.5
-   anything-idle-delay 0.3
-   ;; タイプして再描写するまでの時間。デフォルトは0.1
-   anything-input-idle-delay 0.2
-   ;; 候補の最大表示数。デフォルトは50
-   anything-candidate-number-limit 100
-   ;; 候補が多いときに体感速度を早くする
-   anything-quick-update t
-   ;; 候補選択ショートカットをアルファベットに
-   anything-enable-shortcuts 'alphabet)
+;; Obj-C
+;; <参考>http://sakito.jp/emacs/emacsobjectivec.html#emacs-objective-c
+(add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@implementation" . objc-mode))
+(add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@interface" . objc-mode))
+(add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@protocol" . objc-mode))
 
-  (when (require 'anything-config nil t)
-    ;; root権限でアクションを実行するときのコマンド
-    ;; デフォルトは"su"
-    (setq anything-su-or-sudo "sudo"))
+(ffap-bindings)
+;; 探すパスは ffap-c-path で設定する
+;; (setq ffap-c-path
+;;     '("/usr/include" "/usr/local/include"))
+;(setq ffap-c-path
+;	  '("/Developer/Platforms"))
+;; 新規ファイルの場合には確認する
+(setq ffap-newfile-prompt t)
+;; ffap-kpathsea-expand-path で展開するパスの深さ
+(setq ffap-kpathsea-depth 5)
 
-  (require 'anything-match-plugin nil t)
+(setq ffap-other-file-alist
+	  '(("\\.mm?$" (".h"))
+		("\\.cc$" (".hh" ".h"))
+		("\\.hh$" (".cc" ".C"))
 
-  (when (and (executable-find "cmigemo")
-             (require 'migemo nit t))
-    (require 'anything-migemo nil t))
+		("\\.c$" (".h"))
+		("\\.h$" (".c" ".cc" ".C" ".CC" ".cxx" ".cpp" ".m" ".mm"))
 
-  (when (require 'anything-complete nil t)
-    ;; lispシンボルの補完候補の再検索時間
-    (anything-lisp-complete-symbol-set-timer 150))
+		("\\.C$" (".H" ".hh" ".h"))
+		("\\.H$" (".C" ".CC"))
+		("\\.CC$"  (".HH" ".H"  ".hh" ".h"))
+		("\\.HH$"  (".CC"))
 
-  (require 'anything-show-completion nil t)
+		("\\.cxx$" (".hh" ".h"))
+		("\\.cpp$" (".hpp" ".hh" ".h"))
 
-  (when (require 'auto-install nil t)
-    (require 'anything-auto-install nil t))
-
-  (when (require 'descbinds-anything nil t)
-    ;; describe-bindingsをAnythingに置き換える
-    (descbinds-anything-install)))
+		("\\.hpp$" (".cpp" ".c"))))
+(add-hook 'objc-mode-hook
+		  (lambda ()
+			(define-key c-mode-base-map (kbd "C-c o") 'ff-find-other-file)))
