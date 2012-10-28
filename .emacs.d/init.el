@@ -233,4 +233,24 @@
 
   (when (require 'anything-config nil t)
     ;; root権限でアクションを実行するときのコマンド
-))
+    ;; デフォルトは"su"
+    (setq anything-su-or-sudo "sudo"))
+
+  (require 'anything-match-plugin nil t)
+
+  (when (and (executable-find "cmigemo")
+             (require 'migemo nit t))
+    (require 'anything-migemo nil t))
+
+  (when (require 'anything-complete nil t)
+    ;; lispシンボルの補完候補の再検索時間
+    (anything-lisp-complete-symbol-set-timer 150))
+
+  (require 'anything-show-completion nil t)
+
+  (when (require 'auto-install nil t)
+    (require 'anything-auto-install nil t))
+
+  (when (require 'descbinds-anything nil t)
+    ;; describe-bindingsをAnythingに置き換える
+    (descbinds-anything-install)))
