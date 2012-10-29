@@ -50,7 +50,7 @@
   '("monaco" . "iso10646-1")))
 
 ;; デフォルトの透明度を設定する
-(add-to-list 'default-frame-alist '(alpha . 85))
+(add-to-list 'default-frame-alist '(alpha . 90))
 ;; Color-theme
 (when (require 'color-theme nil t)
   (require 'zenburn)
@@ -145,6 +145,7 @@
 ;; (auto-install-batch "anything")
 (when (require 'anything nil t)
   (global-set-key (kbd "\C-x b") 'anything)
+  (global-set-key (kbd "\C-x C-f") 'anything-filelist+)
   (setq
    ;; 候補を表示するまでの時間。デフォルトは0.5
    anything-idle-delay 0.3
