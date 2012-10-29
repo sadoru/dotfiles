@@ -124,22 +124,25 @@
   ;; install-elisp の関数を利用可能にする
   (auto-install-compatibility-setup))
 
+;; auto-complete
+(when (require 'auto-complete-config nil t)
+  (ac-config-default)
+  (setq ac-auto-start 1)
+  (setq ac-dwim t)
+  (setq ac-use-menu-map t) ;; C-n/C-pで候補選択可能
+  (add-to-list 'ac-sources 'ac-sources-yasnippet) ;; 常にYASnippetを補完候補に
+  (setq ac-dictionary-directories "~/.emacs.d/public_repos/auto-complete/dict") ;;辞書ファイルのディレクトリ
+  (setq ac-comphist-file "~/.emacs.d/etc/ac-comphist.dat") ;; 補完履歴のキャッシュ先
+)
+
 ;; yasnippet
 ;(add-to-list 'load-path "~/.emacs.d/elpa/yasnippet-0.8.0")
 (when (require 'yasnippet nil t)
 ;  (yas/initialize) ; error ?
-  (yas/load-directory "~/.emacs.d/elpa/yasnippet-0.8.0/snippets")
-  (yas/global-mode 1))
+  (yas/global-mode 1)
+  (yas/load-directory "~/.emacs.d/public_repos/yasnippet/snippets")
+  (yas/load-directory "~/.emacs.d/public_repos/yasnippet/extras/imported"))
 
-;; auto-complete
-(when (require 'auto-complete-config nil t)
-  (add-to-list 'ac-dictionary-directories
-               "~/.emacs.d/elisp/auto-complete/ac-dict")
-  (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-  (setq ac-auto-start 1)
-  (setq ac-use-menu-map t)
-  (add-to-list 'ac-sources 'ac-sources-yasnippet) ;; 常にYASnippetを補完候補に
-  (ac-config-default))
 
 ;;; anything
 ;; (auto-install-batch "anything")

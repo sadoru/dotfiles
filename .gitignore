@@ -2,10 +2,16 @@
 .*~
 *~
 .git_backup
+ac-comphist.dat
 .emacs.d/*.dat
+.emacs.d/.#*
 .emacs.d/auto-save-list/*
 .emacs.d/ac-comphist.dat
 .emacs.d/%backup%*
+.emacs.d/public_repos/*
+.emacs.d/backups/*
+.emacs.d/etc/template/cpp_office
+
 .DS_Store
 
-.emacs.d/etc/template/cpp_office
+
