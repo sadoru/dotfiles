@@ -15,8 +15,7 @@
 ;; 引数のディレクトリとそのサブディレクトリをload-pathに追加
 (add-to-load-path "elisp"
                   "conf"
-                  "public_repos"
-                  "elpa")
+                  "public_repos")
 
 ;;言語を日本語にする
 (set-language-environment 'Japanese)
@@ -123,28 +122,16 @@
   ;; install-elisp の関数を利用可能にする
   (auto-install-compatibility-setup))
 
-;; yasnippet
-;(add-to-list 'load-path "~/.emacs.d/elpa/yasnippet-0.8.0")
-(when (require 'yasnippet nil t)
-;  (yas/initialize) ; error ?
-  (yas/load-directory "~/.emacs.d/elpa/yasnippet-0.8.0/snippets")
-  (yas/global-mode 1))
-
 ;; auto-complete
 (when (require 'auto-complete-config nil t)
   (add-to-list 'ac-dictionary-directories
                "~/.emacs.d/elisp/auto-complete/ac-dict")
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-  (setq ac-auto-start 1)
-  (setq ac-use-menu-map t)
-  (add-to-list 'ac-sources 'ac-sources-yasnippet) ;; 常にYASnippetを補完候補に
   (ac-config-default))
 
 ;;; anything
 ;; (auto-install-batch "anything")
 (when (require 'anything nil t)
-  (global-set-key (kbd "\C-x b") 'anything)
-  
   (setq
    ;; 候補を表示するまでの時間。デフォルトは0.5
    anything-idle-delay 0.3
@@ -225,9 +212,11 @@
   (message "done."))
 (add-hook 'find-file-not-found-hooks 'auto-insert)
 
-;; flymakeの設定を一時カット
-;; init_tmp_flymake.el
-
+;; flymake
+(require 'flymake)
+(add-hook 'c++-mode-hook
+          '(lambda()
+             (flymake-mode t)))
 
 ;; Obj-C
 ;; <参考>http://sakito.jp/emacs/emacsobjectivec.html#emacs-objective-c
