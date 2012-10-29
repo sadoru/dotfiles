@@ -15,7 +15,8 @@
 ;; 引数のディレクトリとそのサブディレクトリをload-pathに追加
 (add-to-load-path "elisp"
                   "conf"
-                  "public_repos")
+                  "public_repos"
+                  "elpa")
 
 ;;言語を日本語にする
 (set-language-environment 'Japanese)
@@ -111,6 +112,7 @@
 ;; "C-t"でウィンドウを切り替える
 (define-key global-map (kbd "C-t") 'other-window)
 
+
 ;; auto-installの設定
 (when (require 'auto-install nil t)
   ;; インストールディレクトリの設定
@@ -122,16 +124,27 @@
   ;; install-elisp の関数を利用可能にする
   (auto-install-compatibility-setup))
 
+;; yasnippet
+;(add-to-list 'load-path "~/.emacs.d/elpa/yasnippet-0.8.0")
+(when (require 'yasnippet nil t)
+;  (yas/initialize) ; error ?
+  (yas/load-directory "~/.emacs.d/elpa/yasnippet-0.8.0/snippets")
+  (yas/global-mode 1))
+
 ;; auto-complete
 (when (require 'auto-complete-config nil t)
   (add-to-list 'ac-dictionary-directories
                "~/.emacs.d/elisp/auto-complete/ac-dict")
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+  (setq ac-auto-start 1)
+  (setq ac-use-menu-map t)
+  (add-to-list 'ac-sources 'ac-sources-yasnippet) ;; 常にYASnippetを補完候補に
   (ac-config-default))
 
 ;;; anything
 ;; (auto-install-batch "anything")
 (when (require 'anything nil t)
+  (global-set-key (kbd "\C-x b") 'anything)
   (setq
    ;; 候補を表示するまでの時間。デフォルトは0.5
    anything-idle-delay 0.3
@@ -169,7 +182,13 @@
     (descbinds-anything-install)))
 
 
-;; C++
+;; flymake ;; 設定を一時カット
+;; (require 'flymake)
+;; (add-hook 'c++-mode-hook
+;;           '(lambda()
+;;              (flymake-mode t)))
+
+;;; C++
 ; ヘッダファイル(.h)をc++モードで開く
 (setq auto-mode-alist
       (append '(("\\.h$" . c++-mode))
@@ -180,6 +199,7 @@
 	     (setq indent-tabs-mode nil)))
 (setq c-auto-newline t)   ; 全自動インデントを有効
 
+;;; 新規作成時のテンプレート挿入設定
 ;; auto-insert
 (auto-insert-mode)
 (require 'autoinsert)
@@ -212,13 +232,8 @@
   (message "done."))
 (add-hook 'find-file-not-found-hooks 'auto-insert)
 
-;; flymake
-(require 'flymake)
-(add-hook 'c++-mode-hook
-          '(lambda()
-             (flymake-mode t)))
 
-;; Obj-C
+;;; Obj-C
 ;; <参考>http://sakito.jp/emacs/emacsobjectivec.html#emacs-objective-c
 (add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@implementation" . objc-mode))
 (add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@interface" . objc-mode))
