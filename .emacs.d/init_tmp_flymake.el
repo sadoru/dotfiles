@@ -15,8 +15,7 @@
 ;; 引数のディレクトリとそのサブディレクトリをload-pathに追加
 (add-to-load-path "elisp"
                   "conf"
-                  "public_repos"
-                  "elpa")
+                  "public_repos")
 
 ;;言語を日本語にする
 (set-language-environment 'Japanese)
@@ -123,28 +122,16 @@
   ;; install-elisp の関数を利用可能にする
   (auto-install-compatibility-setup))
 
-;; yasnippet
-;(add-to-list 'load-path "~/.emacs.d/elpa/yasnippet-0.8.0")
-(when (require 'yasnippet nil t)
-;  (yas/initialize) ; error ?
-  (yas/load-directory "~/.emacs.d/elpa/yasnippet-0.8.0/snippets")
-  (yas/global-mode 1))
-
 ;; auto-complete
 (when (require 'auto-complete-config nil t)
   (add-to-list 'ac-dictionary-directories
                "~/.emacs.d/elisp/auto-complete/ac-dict")
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-  (setq ac-auto-start 1)
-  (setq ac-use-menu-map t)
-  (add-to-list 'ac-sources 'ac-sources-yasnippet) ;; 常にYASnippetを補完候補に
   (ac-config-default))
 
 ;;; anything
 ;; (auto-install-batch "anything")
 (when (require 'anything nil t)
-  (global-set-key (kbd "\C-x b") 'anything)
-  
   (setq
    ;; 候補を表示するまでの時間。デフォルトは0.5
    anything-idle-delay 0.3
@@ -225,8 +212,72 @@
   (message "done."))
 (add-hook 'find-file-not-found-hooks 'auto-insert)
 
-;; flymakeの設定を一時カット
-;; init_tmp_flymake.el
+;; flymake
+(require 'flymake)
+(add-hook 'c++-mode-hook
+          '(lambda()
+             (flymake-mode t)))
+
+;; Makefileの種類を定義
+(defvar flymake-makefile-filenames
+  '("Makefile" "makefile" "GNUmakefile")
+  "File names for make.")
+
+;; Makefileがなければコマンドを直接利用するコマンドラインを生成
+(defun flymake-get-make-gcc-cmdline (source base-dir)
+  (let (found)
+    (dolist (makefile flymake-makefile-filenames)
+      (if (file-readable-p (concat base-dir "/" makefile))
+          (setq found t)))
+    (if found
+        (list "make"
+              (list "-s"
+                    "-C"
+                    base-dir
+                    (concat "CHK_SOURCES=" source)
+                    "SYNTAX_CHECK_MODE=1"
+                    "check-syntax"))
+      (list (if (string= (file-name-extension source) "c") "gcc" "g++")
+            (list "-o"
+                  "/dev/null"
+                  "-fsyntax-only"
+                  "-Wall"
+                  source)))))
+
+;; Flymake初期化関数の生成
+(defun flymake-simple-make-gcc-init-impl
+  (create-temp-f use-relative-base-dir
+                 use-relative-source build-file-name get-cmdline-f)
+  "Create syntax check command line for a directly checked source file.
+Use CREATE-TEMP-F for creating temp copy."
+  (let* ((args nil)
+         (source-file-name buffer-file-name)
+         (buildfile-dir (file-name-directory source-file-name)))
+    (if buildfile-dir
+        (let* ((temp-source-file-name
+                (flymake-init-create-temp-buffer-copy create-temp-f)))
+          (setq args
+                (flymake-get-syntax-check-program-args
+                 temp-source-file-name
+                 buildfile-dir
+                 use-relative-base-dir
+                 use-relative-source
+                 get-cmdline-f))))
+    args))
+
+;; 初期化関数を定義
+(defun flymake-simple-make-gcc-init ()
+  (message "%s" (flymake-simple-make-gcc-init-impl
+                 'flymake-create-temp-inplace t t "Makefile"
+                 'flymake-get-make-gcc-cmdline))
+  (flymake-simple-make-gcc-init-impl
+   'flymake-create-temp-inplace t t "Makefile"
+   'flymake-get-make-gcc-cmdline))
+
+;; 拡張子 .c, .cpp, c++ などのときに上記の関数を利用する
+(add-to-list 'flymake-allowed-file-name-masks
+             '("\\.\\(?:c\\(?:pp\\|xx\\|\\+\\+\\)?\\|CC||)\\'"
+               flymake-simple-make-gcc-init))
 
 
 ;; Obj-C
