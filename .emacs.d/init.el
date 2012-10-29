@@ -50,7 +50,7 @@
   '("monaco" . "iso10646-1")))
 
 ;; デフォルトの透明度を設定する
-(add-to-list 'default-frame-alist '(alpha . 95))
+(add-to-list 'default-frame-alist '(alpha . 85))
 ;; Color-theme
 (when (require 'color-theme nil t)
   (require 'zenburn)
@@ -182,13 +182,31 @@
     (descbinds-anything-install)))
 
 
-;; flymake ;; 設定を一時カット
-;; (require 'flymake)
-;; (add-hook 'c++-mode-hook
-;;           '(lambda()
-;;              (flymake-mode t)))
+;; Flymake
+(require 'flymake)
+;; 全てのファイルでflymakeを有効化
+(add-hook 'find-file-hook 'flymake-find-file-hook)
+;; M-p/M-nで次の警告、エラー行の移動
+(global-set-key "\M-p" 'flymake-goto-prev-error)
+(global-set-key "\M-n" 'flymake-goto-next-error)
 
 ;;; C++
+;; Makefileなし
+(defun flymake-cc-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name))))
+    (list "g++" (list "-Wall" "-Wextra" "-fsyntax-only" local-file))))
+(push '("\\.cpp$" flymake-cc-init ) flymake-allowed-file-name-masks)
+
+;; Makefileあり
+;; (add-hook 'c++-mode-hook
+;;           '(lambda()
+;; ;;             (flymake-mode-on)))
+;;              (flymake-mode t)))
+
 ; ヘッダファイル(.h)をc++モードで開く
 (setq auto-mode-alist
       (append '(("\\.h$" . c++-mode))
