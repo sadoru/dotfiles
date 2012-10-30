@@ -157,6 +157,7 @@
 ;; (auto-install-batch "anything")
 (when (require 'anything nil t)
   (global-set-key (kbd "\C-x b") 'anything)
+  (global-set-key (kbd "\C-x \C-f") 'anything-filelist+)
   (setq
    ;; 候補を表示するまでの時間。デフォルトは0.5
    anything-idle-delay 0.3
