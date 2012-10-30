@@ -202,6 +202,20 @@
 (global-set-key "\M-p" 'flymake-goto-prev-error)
 (global-set-key "\M-n" 'flymake-goto-next-error)
 
+(add-hook 'c-mode-common-hook
+          '(lambda()
+             ;; 対応する括弧
+             (make-variable-buffer-local 'skeleton-pair)
+             (make-variable-buffer-local 'skeleton-pair-on-word)
+             (setq skeleton-pair-on-word t)
+             (setq skeleton-pair t)
+             (make-variable-buffer-local 'skeleton-pair-alist)
+             (local-set-key (kbd "(") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "[") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "{") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "`") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "\"") 'skeleton-pair-insert-maybe)))
+
 ;;; C++
 ;; Makefileなし
 (defun flymake-cc-init ()
