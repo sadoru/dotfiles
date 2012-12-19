@@ -58,7 +58,7 @@
 
 ;; デフォルトの透明度を設定する
 ;(add-to-list 'default-frame-alist '(alpha . 90))
-(set-frame-parameter (selected-frame) 'alpha '(95 50))
+(set-frame-parameter (selected-frame) 'alpha '(95 80))
 
 ;; Color-theme
 (when (require 'color-theme nil t)
@@ -72,6 +72,11 @@
 
 ;; タイトルバーにファイルのフルパスを表示
 (setq frame-title-format "%f")
+
+;; 行番号を表示
+(when (require 'linum nil t)
+  (global-linum-mode t)
+  (setq linum-format "%5d"))
 
 ;; tab
 (setq-default tab-width 4)
