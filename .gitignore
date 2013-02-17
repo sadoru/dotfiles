@@ -19,3 +19,7 @@ ac-comphist.dat
 .DS_Store
 
 
+
+.emacs.d/url/cookies
+
+.emacs.d/elpa/archives/gnu/archive-contents
