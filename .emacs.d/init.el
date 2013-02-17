@@ -2,13 +2,22 @@
 (when (< emacs-major-version 23)
   (defvar user-emacs-directory "~/.emacs.d/"))
 
-;; Macの設定
-(when (eq system-type 'darwin)
-  (add-hook 'window-setup-hook
-            (lambda ()
-              (set-frame-parameter nil 'fullscreen 'fullboth)
-              )))
+;;言語を日本語にする
+(set-language-environment 'Japanese)
+;;極力UTF-8とする
+(prefer-coding-system 'utf-8)
 
+;;------------------------------------------------------------------
+;; packages
+;;------------------------------------------------------------------
+(require 'package)
+;(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+
+;;------------------------------------------------------------------
+;; load-path
+;;------------------------------------------------------------------
 ;; 引数を load-path へ追加
 ;; load-path を追加する関数を定義
 (defun add-to-load-path (&rest paths)
@@ -25,12 +34,21 @@
                   "public_repos"
                   "elpa")
 
-;;言語を日本語にする
-(set-language-environment 'Japanese)
-;;極力UTF-8とする
-(prefer-coding-system 'utf-8)
+;;------------------------------------------------------------------
+;; フォント設定
+;;------------------------------------------------------------------
+;; abcdefghijklmnopqrstuvwxyz
+;; ABCDEFGHIJKLMNOPQRSTUVWXYZ
+;; `1234567890-=\[];',./
+;; ~!@#$%^&*()_+|{}:"<>?
+;; 壱弐参四五壱弐参四五壱弐参四五壱弐参四五
+;; 1234567890123456789012345678901234567890
+;; ABCdeＡＢＣｄｅ
+;;
+;; ┏━━━━━━━━━━━━┓
+;; ┃　　　　　罫線          ┃   ;; 全角・半角空白
+;; ┗━━━━━━━━━━━━┛
 
-;;フォント設定
 ;(set-default-font"-*-Osaka-normal-normal-normal-*-10-*-*-*-m-0-iso10646-1")
 (when (>= emacs-major-version 23)
  (setq fixed-width-use-QuickDraw-for-ascii t)
@@ -38,7 +56,7 @@
  (set-face-attribute 'default nil
 ;                    :family "monaco"
                      :family "ricty"
-                     :height 150)
+                     :height 180)
  (set-fontset-font
   (frame-parameter nil 'font)
   'japanese-jisx0208
@@ -54,16 +72,51 @@
   (frame-parameter nil 'font)
   'mule-unicode-0100-24ff
 ;  '("monaco" . "iso10646-1")))
-  '("monaco" . "iso10646-1")))
+  '("ricty" . "iso10646-1")))
+
+
+;;------------------------------------------------------------------
+;; Key bindings
+;;------------------------------------------------------------------
+;; redo+の設定
+(when (require 'redo+ nil t)
+  ;; C-' にリドゥを割り当てる
+  (global-set-key (kbd "C-'") 'redo)
+  ;; 日本語キーボードの場合は C-. がいいかも
+  ;(global-set-key (kbd "C-.") 'redo)
+  )
+
+;; C-mにnewline-and-indent
+(global-set-key (kbd "C-m") 'newline-and-indent)
+;; 折り返しトグルコマンド
+(define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
+;; "C-t"でウィンドウを切り替える
+(define-key global-map (kbd "C-t") 'other-window)
+
+;;------------------------------------------------------------------
+;; 外観
+;;------------------------------------------------------------------
+;; 起動時フレームサイズを設定
+(setq initial-frame-alist
+      (append (list
+               ;; (when (eq system-type 'darwin)   ; Macの設定
+               ;;   ('(width . 88)
+               ;;   '(height . 51)))
+	       ;; )
+	       '(width . 88)
+	       '(height . 51)
+              initial-frame-alist)))
+(setq default-frame-alist initial-frame-alist)
+
+;; tool bar
+(tool-bar-mode 0)
 
 ;; デフォルトの透明度を設定する
-;(add-to-list 'default-frame-alist '(alpha . 90))
 (set-frame-parameter (selected-frame) 'alpha '(95 80))
 
 ;; Color-theme
 (when (require 'color-theme nil t)
-  ; https://github.com/credmp/color-theme-zenburn/blob/master/zenburn.el
-  (require 'zenburn)
+  (require 'zenburn)    ; https://github.com/credmp/color-theme-zenburn/blob/master/zenburn.el
   (color-theme-initialize)
   (color-theme-zenburn)
   ;(color-theme-billw)
@@ -77,11 +130,6 @@
 (when (require 'linum nil t)
   (global-linum-mode t)
   (setq linum-format "%5d"))
-
-;; tab
-(setq-default tab-width 4)
-;; インデントにタブ文字使用しない
-(setq-default indent-tabs-mode nil)
 
 ;; 現在行のハイライト
 (defface my-hl-line-face
@@ -98,6 +146,7 @@
 
 ;; リージョンをハイライト
 (transient-mark-mode t)
+
 ;;対応する括弧のハイライト
 (setq show-paren-delay 0) ; 表示までの秒数
 (show-paren-mode t)
@@ -105,29 +154,21 @@
 (set-face-background 'show-paren-match-face nil)
 (set-face-underline-p 'show-paren-match-face "yellow")
 
+;; tab
+(setq-default tab-width 4)
+;; インデントにタブ文字使用しない
+(setq-default indent-tabs-mode nil)
+
 ;; バックアップとオートセーブファイルを一箇所に集める
 (add-to-list 'backup-directory-alist
              (cons "." "~/.emacs.d/backups/"))
 (setq auto-save-file-name-transforms
       `((".*" ,(expand-file-name "~/.emacs.d/backups/") t)))
 
-;; redo+の設定
-(when (require 'redo+ nil t)
-  ;; C-' にリドゥを割り当てる
-  (global-set-key (kbd "C-'") 'redo)
-  ;; 日本語キーボードの場合は C-. がいいかも
-  ;(global-set-key (kbd "C-.") 'redo)
-  )
 
-;; C-mにnewline-and-indent
-(global-set-key (kbd "C-m") 'newline-and-indent)
-;; 折り返しトグルコマンド
-(define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
-;; "C-t"でウィンドウを切り替える
-(define-key global-map (kbd "C-t") 'other-window)
-
-
-;; auto-installの設定
+;;------------------------------------------------------------------
+;; auto-install
+;;------------------------------------------------------------------
 (when (require 'auto-install nil t)
   ;; インストールディレクトリの設定
   (setq auto-install-directory "~/.emacs.d/elisp/")
@@ -138,7 +179,9 @@
   ;; install-elisp の関数を利用可能にする
   (auto-install-compatibility-setup))
 
+;;------------------------------------------------------------------
 ;; auto-complete
+;;------------------------------------------------------------------
 (when (require 'auto-complete-config nil t)
   (ac-config-default)
   (setq ac-auto-start 1)
@@ -149,7 +192,9 @@
   (setq ac-comphist-file "~/.emacs.d/etc/ac-comphist.dat") ;; 補完履歴のキャッシュ先
 )
 
+;;------------------------------------------------------------------
 ;; yasnippet
+;;------------------------------------------------------------------
 ;(add-to-list 'load-path "~/.emacs.d/elpa/yasnippet-0.8.0")
 (when (require 'yasnippet nil t)
 ;  (yas/initialize) ; error ?
@@ -157,8 +202,9 @@
   (yas/load-directory "~/.emacs.d/public_repos/yasnippet/snippets")
   (yas/load-directory "~/.emacs.d/public_repos/yasnippet/extras/imported"))
 
-
-;;; anything
+;;------------------------------------------------------------------
+;; anything
+;;------------------------------------------------------------------
 ;; (auto-install-batch "anything")
 (when (require 'anything nil t)
   (global-set-key (kbd "\C-x b") 'anything)
@@ -198,8 +244,9 @@
     ;; describe-bindingsをAnythingに置き換える
     (descbinds-anything-install)))
 
-
+;;------------------------------------------------------------------
 ;; Flymake
+;;------------------------------------------------------------------
 (require 'flymake)
 ;; 全てのファイルでflymakeを有効化
 (add-hook 'find-file-hook 'flymake-find-file-hook)
@@ -220,8 +267,7 @@
              (local-set-key (kbd "{") 'skeleton-pair-insert-maybe)
              (local-set-key (kbd "`") 'skeleton-pair-insert-maybe)
              (local-set-key (kbd "\"") 'skeleton-pair-insert-maybe)))
-
-;;; C++
+;; C++
 ;; Makefileなし
 (defun flymake-cc-init ()
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
@@ -248,7 +294,10 @@
 	     (setq indent-tabs-mode nil)))
 (setq c-auto-newline t)   ; 全自動インデントを有効
 
-;;; 新規作成時のテンプレート挿入設定
+;;------------------------------------------------------------------
+;; C++
+;;------------------------------------------------------------------
+;;; 新規作成時のテンプレート挿入設定(C++)
 ;; auto-insert
 (auto-insert-mode)
 (require 'autoinsert)
@@ -264,7 +313,6 @@
                ("\\.h$" . ["template.h" my-template])
                ) auto-insert-alist))
 (require 'cl)
-;; ここが腕の見せ所
 ; <参考> http://d.hatena.ne.jp/higepon/20080731/1217491155
 (defvar template-replacements-alists
   '(("%file%"             . (lambda () (file-name-nondirectory (buffer-file-name))))
@@ -281,9 +329,9 @@
   (message "done."))
 (add-hook 'find-file-not-found-hooks 'auto-insert)
 
-
-;;; Obj-C
-;; <参考>http://sakito.jp/emacs/emacsobjectivec.html#emacs-objective-c
+;;------------------------------------------------------------------
+;; Obj-C  <参考>http://sakito.jp/emacs/emacsobjectivec.html#emacs-objective-c
+;;------------------------------------------------------------------
 (add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@implementation" . objc-mode))
 (add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@interface" . objc-mode))
 (add-to-list 'magic-mode-alist '("\\(.\\|\n\\)*\n@protocol" . objc-mode))

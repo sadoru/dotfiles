@@ -1,3 +1,4 @@
+### .gitignore
 .#
 .*~
 *~
@@ -11,7 +12,10 @@ ac-comphist.dat
 .emacs.d/public_repos/*
 .emacs.d/backups/*
 .emacs.d/etc/template/cpp_office
+.emacs.d/eshell/
+.emacs.d/elpa/*
 
+### OS X
 .DS_Store
 
 
