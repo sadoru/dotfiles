@@ -245,60 +245,22 @@
     (descbinds-anything-install)))
 
 ;;------------------------------------------------------------------
-;; Flymake
-;;------------------------------------------------------------------
-(require 'flymake)
-;; 全てのファイルでflymakeを有効化
-(add-hook 'find-file-hook 'flymake-find-file-hook)
-;; M-p/M-nで次の警告、エラー行の移動
-(global-set-key "\M-p" 'flymake-goto-prev-error)
-(global-set-key "\M-n" 'flymake-goto-next-error)
-
-(add-hook 'c-mode-common-hook
-          '(lambda()
-             ;; 対応する括弧
-             (make-variable-buffer-local 'skeleton-pair)
-             (make-variable-buffer-local 'skeleton-pair-on-word)
-             (setq skeleton-pair-on-word t)
-             (setq skeleton-pair t)
-             (make-variable-buffer-local 'skeleton-pair-alist)
-             (local-set-key (kbd "(") 'skeleton-pair-insert-maybe)
-             (local-set-key (kbd "[") 'skeleton-pair-insert-maybe)
-             (local-set-key (kbd "{") 'skeleton-pair-insert-maybe)
-             (local-set-key (kbd "`") 'skeleton-pair-insert-maybe)
-             (local-set-key (kbd "\"") 'skeleton-pair-insert-maybe)))
 ;; C++
-;; Makefileなし
-(defun flymake-cc-init ()
-  (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                     'flymake-create-temp-inplace))
-         (local-file (file-relative-name
-                      temp-file
-                      (file-name-directory buffer-file-name))))
-    (list "g++" (list "-Wall" "-Wextra" "-fsyntax-only" local-file))))
-(push '("\\.cpp$" flymake-cc-init ) flymake-allowed-file-name-masks)
-
-;; Makefileあり
-;; (add-hook 'c++-mode-hook
-;;           '(lambda()
-;; ;;             (flymake-mode-on)))
-;;              (flymake-mode t)))
+;;------------------------------------------------------------------
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (c-set-style "k&r")
+            (setq c-basic-offset 4) ; 字下げは4に変更
+            (setq c-auto-newline t) ; 全自動インデントを有効
+;             (flyspell-prog-mode)  ; ispellが実行できていない？
+            ))
 
 ; ヘッダファイル(.h)をc++モードで開く
 (setq auto-mode-alist
       (append '(("\\.h$" . c++-mode))
 			  auto-mode-alist))
-(add-hook 'c++-mode-hook
-	  '(lambda()
-	     (c-set-style "cc-mode") ; tab-4
-	     (setq indent-tabs-mode nil)))
-(setq c-auto-newline t)   ; 全自動インデントを有効
 
-;;------------------------------------------------------------------
-;; C++
-;;------------------------------------------------------------------
-;;; 新規作成時のテンプレート挿入設定(C++)
-;; auto-insert
+;; auto-insert - 新規作成時のテンプレート挿入設定(C++) 
 (auto-insert-mode)
 (require 'autoinsert)
 
@@ -310,7 +272,7 @@
 (setq auto-insert-alist
       (nconc '(
                ("\\.cpp$" . ["template.cpp" my-template])
-               ("\\.h$" . ["template.h" my-template])
+               ("\\.h$"   . ["template.h" my-template])
                ) auto-insert-alist))
 (require 'cl)
 ; <参考> http://d.hatena.ne.jp/higepon/20080731/1217491155
@@ -321,10 +283,10 @@
 (defun my-template ()
   (time-stamp)
   (mapc #'(lambda(c)
-        (progn
-          (goto-char (point-min))
-          (replace-string (car c) (funcall (cdr c)) nil)))
-    template-replacements-alists)
+            (progn
+              (goto-char (point-min))
+              (replace-string (car c) (funcall (cdr c)) nil)))
+        template-replacements-alists)
   (goto-char (point-max))
   (message "done."))
 (add-hook 'find-file-not-found-hooks 'auto-insert)
@@ -367,3 +329,44 @@
 (add-hook 'objc-mode-hook
 		  (lambda ()
 			(define-key c-mode-base-map (kbd "C-c o") 'ff-find-other-file)))
+
+
+;;------------------------------------------------------------------
+;; Flymake
+;;------------------------------------------------------------------
+(require 'flymake)
+;; 全てのファイルでflymakeを有効化
+(add-hook 'find-file-hook 'flymake-find-file-hook)
+;; M-p/M-nで次の警告、エラー行の移動
+(global-set-key "\M-p" 'flymake-goto-prev-error)
+(global-set-key "\M-n" 'flymake-goto-next-error)
+
+(add-hook 'c-mode-common-hook
+          '(lambda()
+             ;; 対応する括弧
+             (make-variable-buffer-local 'skeleton-pair)
+             (make-variable-buffer-local 'skeleton-pair-on-word)
+             (setq skeleton-pair-on-word t)
+             (setq skeleton-pair t)
+             (make-variable-buffer-local 'skeleton-pair-alist)
+             (local-set-key (kbd "(") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "[") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "{") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "`") 'skeleton-pair-insert-maybe)
+             (local-set-key (kbd "\"") 'skeleton-pair-insert-maybe)))
+
+;; Makefileなし(C++)
+(defun flymake-cc-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name))))
+    (list "g++" (list "-Wall" "-Wextra" "-fsyntax-only" local-file))))
+(push '("\\.cpp$" flymake-cc-init ) flymake-allowed-file-name-masks)
+
+;; Makefileあり
+;; (add-hook 'c++-mode-hook
+;;           '(lambda()
+;; ;;             (flymake-mode-on)))
+;;              (flymake-mode t)))
