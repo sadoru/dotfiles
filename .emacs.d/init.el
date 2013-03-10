@@ -107,9 +107,9 @@
 
 ;; Color-theme
 (when (require 'color-theme nil t)
-  (require 'zenburn)    ; https://github.com/credmp/color-theme-zenburn/blob/master/zenburn.el
   (color-theme-initialize)
-  (color-theme-zenburn)
+;  (require 'zenburn-theme)
+  (when (require 'zenburn-theme nil t))
   ;(color-theme-billw)
   ;(color-theme-clarity)
   )
