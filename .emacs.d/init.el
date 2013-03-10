@@ -7,6 +7,12 @@
 ;;極力UTF-8とする
 (prefer-coding-system 'utf-8)
 
+;; バックアップとオートセーブファイルを一箇所に集める
+(add-to-list 'backup-directory-alist
+             (cons "." "~/.emacs.d/backups/"))
+(setq auto-save-file-name-transforms
+      `((".*" ,(expand-file-name "~/.emacs.d/backups/") t)))
+
 ;;------------------------------------------------------------------
 ;; packages
 ;;------------------------------------------------------------------
@@ -74,28 +80,13 @@
 ;  '("monaco" . "iso10646-1")))
   '("ricty" . "iso10646-1")))
 
-
-;;------------------------------------------------------------------
-;; Key bindings
-;;------------------------------------------------------------------
-;; redo+の設定
-(when (require 'redo+ nil t)
-  ;; C-' にリドゥを割り当てる
-  (global-set-key (kbd "C-'") 'redo)
-  ;; 日本語キーボードの場合は C-. がいいかも
-  ;(global-set-key (kbd "C-.") 'redo)
-  )
-
-;; C-mにnewline-and-indent
-(global-set-key (kbd "C-m") 'newline-and-indent)
-;; 折り返しトグルコマンド
-(define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
-;; "C-t"でウィンドウを切り替える
-(define-key global-map (kbd "C-t") 'other-window)
-
 ;;------------------------------------------------------------------
 ;; 外観
 ;;------------------------------------------------------------------
+;; tab
+(setq-default tab-width 4)
+(setq-default indent-tabs-mode nil)  ; インデントにタブ文字使用しない
+
 ;; 起動時フレームサイズを設定
 (setq initial-frame-alist
       (append (list
@@ -154,17 +145,72 @@
 (set-face-background 'show-paren-match-face nil)
 (set-face-underline-p 'show-paren-match-face "yellow")
 
-;; tab
-(setq-default tab-width 4)
-;; インデントにタブ文字使用しない
-(setq-default indent-tabs-mode nil)
+;;------------------------------------------------------------------
+;; Key bindings
+;;------------------------------------------------------------------
+;; redo+の設定
+(when (require 'redo+ nil t)
+  ;; C-' にリドゥを割り当てる
+  (global-set-key (kbd "C-'") 'redo)
+  ;; 日本語キーボードの場合は C-. がいいかも
+  ;(global-set-key (kbd "C-.") 'redo)
+  )
 
-;; バックアップとオートセーブファイルを一箇所に集める
-(add-to-list 'backup-directory-alist
-             (cons "." "~/.emacs.d/backups/"))
-(setq auto-save-file-name-transforms
-      `((".*" ,(expand-file-name "~/.emacs.d/backups/") t)))
+;; C-mにnewline-and-indent
+(global-set-key (kbd "C-m") 'newline-and-indent)
+;; 折り返しトグルコマンド
+(define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
+;; "C-t"でウィンドウを切り替える
+(define-key global-map (kbd "C-t") 'other-window)
 
+;;------------------------------------------------------------------
+;; text
+;;------------------------------------------------------------------
+;;; Tab / BackTab(Tab, Shift+Tab) インデント、逆インデント動作
+;;; http://d.hatena.ne.jp/mtv/20110925/p1
+(add-hook 'text-mode-hook 
+          '(lambda()
+;             (define-key text-mode-map "\C-i" 'tab-to-tab-stop)
+             (define-key text-mode-map "\C-i" 'tab-to-tab-stop-line-or-region)
+;             (define-key text-mode-map [backtab] 'backtab)
+             (define-key text-mode-map [backtab] 'backtab-line-or-region)
+             (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120 124 128))
+             (setq indent-tabs-mode nil)))
+
+(defun tab-to-tab-stop-line-or-region ()
+  (interactive)
+  (if mark-active (save-excursion
+                    (setq count (count-lines (region-beginning) (region-end)))
+                    (goto-char (region-beginning))
+                    (while (> count 0)
+                      (tab-to-tab-stop)
+                      (forward-line)
+                      (setq count (1- count)))
+                    (setq deactivate-mark nil))
+    (tab-to-tab-stop)))
+
+(defun backtab()
+  "Do reverse indentation"
+  (interactive)
+  (back-to-indentation)
+  (delete-backward-char
+   (if (< (current-column) (car tab-stop-list)) 0
+     (- (current-column)
+        (car (let ((value (list 0)))
+               (dolist (element tab-stop-list value) 
+                 (setq value (if (< element (current-column)) (cons element value) value)))))))))
+
+(defun backtab-line-or-region ()
+  (interactive)
+  (if mark-active (save-excursion
+                    (setq count (count-lines (region-beginning) (region-end)))
+                    (goto-char (region-beginning))
+                    (while (> count 0)
+                      (backtab)
+                      (forward-line)
+                      (setq count (1- count)))
+                    (setq deactivate-mark nil))
+    (backtab)))
 
 ;;------------------------------------------------------------------
 ;; auto-install
