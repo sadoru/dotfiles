@@ -1,3 +1,9 @@
+;; load environment value  ; http://d.hatena.ne.jp/syohex/20111117/1321503477
+(when (load-file (expand-file-name "~/.emacs.d/shellenv.el"))
+  (dolist (path (reverse (split-string (getenv "PATH")":")))
+    (add-to-list 'exec-path path))
+  )
+
 ;; Emacs 23以前ではuser-emacs-directoryが未定義のため設定を追加しておく
 (when (< emacs-major-version 23)
   (defvar user-emacs-directory "~/.emacs.d/"))
@@ -39,6 +45,19 @@
                   "conf"
                   "public_repos"
                   "elpa")
+
+;;------------------------------------------------------------------
+;; auto-install
+;;------------------------------------------------------------------
+(when (require 'auto-install nil t)
+  ;; インストールディレクトリの設定
+  (setq auto-install-directory "~/.emacs.d/elisp/")
+  ;; Emacs Wikiに登録されているelispの名前を取得する
+;  (auto-install-update-emacswiki-package-name t)
+  ;; 必要であればプロキシの設定
+  ;(setq url-proxy-services '(("http" . "localhost:8339")))
+  ;; install-elisp の関数を利用可能にする
+  (auto-install-compatibility-setup))
 
 ;;------------------------------------------------------------------
 ;; フォント設定
@@ -164,68 +183,6 @@
 (define-key global-map (kbd "C-t") 'other-window)
 
 ;;------------------------------------------------------------------
-;; text
-;;------------------------------------------------------------------
-;;; Tab / BackTab(Tab, Shift+Tab) インデント、逆インデント動作
-;;; http://d.hatena.ne.jp/mtv/20110925/p1
-(add-hook 'text-mode-hook 
-          '(lambda()
-;             (define-key text-mode-map "\C-i" 'tab-to-tab-stop)
-             (define-key text-mode-map "\C-i" 'tab-to-tab-stop-line-or-region)
-;             (define-key text-mode-map [backtab] 'backtab)
-             (define-key text-mode-map [backtab] 'backtab-line-or-region)
-             (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120 124 128))
-             (setq indent-tabs-mode nil)))
-
-(defun tab-to-tab-stop-line-or-region ()
-  (interactive)
-  (if mark-active (save-excursion
-                    (setq count (count-lines (region-beginning) (region-end)))
-                    (goto-char (region-beginning))
-                    (while (> count 0)
-                      (tab-to-tab-stop)
-                      (forward-line)
-                      (setq count (1- count)))
-                    (setq deactivate-mark nil))
-    (tab-to-tab-stop)))
-
-(defun backtab()
-  "Do reverse indentation"
-  (interactive)
-  (back-to-indentation)
-  (delete-backward-char
-   (if (< (current-column) (car tab-stop-list)) 0
-     (- (current-column)
-        (car (let ((value (list 0)))
-               (dolist (element tab-stop-list value) 
-                 (setq value (if (< element (current-column)) (cons element value) value)))))))))
-
-(defun backtab-line-or-region ()
-  (interactive)
-  (if mark-active (save-excursion
-                    (setq count (count-lines (region-beginning) (region-end)))
-                    (goto-char (region-beginning))
-                    (while (> count 0)
-                      (backtab)
-                      (forward-line)
-                      (setq count (1- count)))
-                    (setq deactivate-mark nil))
-    (backtab)))
-
-;;------------------------------------------------------------------
-;; auto-install
-;;------------------------------------------------------------------
-(when (require 'auto-install nil t)
-  ;; インストールディレクトリの設定
-  (setq auto-install-directory "~/.emacs.d/elisp/")
-  ;; Emacs Wikiに登録されているelispの名前を取得する
-;  (auto-install-update-emacswiki-package-name t)
-  ;; 必要であればプロキシの設定
-  ;(setq url-proxy-services '(("http" . "localhost:8339")))
-  ;; install-elisp の関数を利用可能にする
-  (auto-install-compatibility-setup))
-
-;;------------------------------------------------------------------
 ;; auto-complete
 ;;------------------------------------------------------------------
 (when (require 'auto-complete-config nil t)
@@ -289,6 +246,82 @@
   (when (require 'descbinds-anything nil t)
     ;; describe-bindingsをAnythingに置き換える
     (descbinds-anything-install)))
+
+;;------------------------------------------------------------------
+;; text-mode
+;;------------------------------------------------------------------
+;;; Tab / BackTab(Tab, Shift+Tab) インデント、逆インデント動作
+;;; http://d.hatena.ne.jp/mtv/20110925/p1
+(add-hook 'text-mode-hook 
+          '(lambda()
+;             (define-key text-mode-map "\C-i" 'tab-to-tab-stop)
+             (define-key text-mode-map "\C-i" 'tab-to-tab-stop-line-or-region)
+;             (define-key text-mode-map [backtab] 'backtab)
+             (define-key text-mode-map [backtab] 'backtab-line-or-region)
+             (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120 124 128))
+             (setq indent-tabs-mode nil)))
+
+(defun tab-to-tab-stop-line-or-region ()
+  (interactive)
+  (if mark-active (save-excursion
+                    (setq count (count-lines (region-beginning) (region-end)))
+                    (goto-char (region-beginning))
+                    (while (> count 0)
+                      (tab-to-tab-stop)
+                      (forward-line)
+                      (setq count (1- count)))
+                    (setq deactivate-mark nil))
+    (tab-to-tab-stop)))
+
+(defun backtab()
+  "Do reverse indentation"
+  (interactive)
+  (back-to-indentation)
+  (delete-backward-char
+   (if (< (current-column) (car tab-stop-list)) 0
+     (- (current-column)
+        (car (let ((value (list 0)))
+               (dolist (element tab-stop-list value) 
+                 (setq value (if (< element (current-column)) (cons element value) value)))))))))
+
+(defun backtab-line-or-region ()
+  (interactive)
+  (if mark-active (save-excursion
+                    (setq count (count-lines (region-beginning) (region-end)))
+                    (goto-char (region-beginning))
+                    (while (> count 0)
+                      (backtab)
+                      (forward-line)
+                      (setq count (1- count)))
+                    (setq deactivate-mark nil))
+    (backtab)))
+
+;;------------------------------------------------------------------
+;; tags
+;;------------------------------------------------------------------
+;; gtags
+;;; http://d.hatena.ne.jp/higepon/20060107/1136628498
+;;; http://d.hatena.ne.jp/klon/20110819/1313766145
+(when (require 'gtags nil t)
+  (when (require 'anything-gtags nil t))
+  (autoload 'gtags-mode "gtags" "" t)
+  (setq gtags-mode-hook
+        '(lambda ()
+           (local-set-key "\M-t" 'gtags-find-tag)
+           (local-set-key "\M-r" 'gtags-find-rtag)
+           (local-set-key "\M-s" 'gtags-find-symbol)
+           (local-set-key "\C-t" 'gtags-pop-stack)  ; カーソルの移動とかぶるので他のにしたい
+
+           (setq gtags-path-style 'relative)
+           ))
+
+  ;; 自動でgtags-modeにする & 補完リスト作成
+  (add-hook 'c-mode-common-hook
+            '(lambda ()
+               (gtags-mode 1)
+               (gtags-make-complete-list)
+               ))
+  )
 
 ;;------------------------------------------------------------------
 ;; C++
