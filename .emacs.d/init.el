@@ -125,13 +125,17 @@
 (set-frame-parameter (selected-frame) 'alpha '(95 80))
 
 ;; Color-theme
-(when (require 'color-theme nil t)
-  (color-theme-initialize)
-;  (require 'zenburn-theme)
-  (when (require 'zenburn-theme nil t))
-  ;(color-theme-billw)
-  ;(color-theme-clarity)
-  )
+(cond
+ ((require 'solarized-dark-theme nil t))  ; default color
+; ((require 'solarized-light-theme nil t))
+ ((require 'zenburn-theme nil t))
+ ((require 'molokai-theme nil t))
+;;  ((when (require 'color-theme nil t)
+;;     (color-theme-subtle-hacker) ; 2nd color
+;; ;         (color-theme-billw)
+;; ;         (color-theme-clarity)
+;;     ))
+)
 
 ;; タイトルバーにファイルのフルパスを表示
 (setq frame-title-format "%f")
@@ -162,7 +166,7 @@
 (show-paren-mode t)
 (setq show-paren-style 'expression)
 (set-face-background 'show-paren-match-face nil)
-(set-face-underline-p 'show-paren-match-face "yellow")
+(set-face-underline-p 'show-paren-match-face "skyblue")
 
 ;;------------------------------------------------------------------
 ;; Key bindings
