@@ -1,5 +1,5 @@
 ;; load environment value  ; http://d.hatena.ne.jp/syohex/20111117/1321503477
-(when (load-file (expand-file-name "~/.emacs.d/shellenv.el"))
+(when (load-file (expand-file-name "~/.emacs.d/conf/shellenv.el"))
   (dolist (path (reverse (split-string (getenv "PATH")":")))
     (add-to-list 'exec-path path))
   )
