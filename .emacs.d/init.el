@@ -162,11 +162,15 @@
 (transient-mark-mode t)
 
 ;;対応する括弧のハイライト
-(setq show-paren-delay 0) ; 表示までの秒数
 (show-paren-mode t)
-(setq show-paren-style 'expression)
-(set-face-background 'show-paren-match-face nil)
-(set-face-underline-p 'show-paren-match-face "skyblue")
+(setq show-paren-delay 0) ; 表示までの秒数
+;(setq show-paren-style 'expression)  ; とにかく強調表示
+(setq show-paren-style 'parenthesis)  ; 強調表示のみ
+(set-face-attribute 'show-paren-match-face nil
+                    :background nil
+                    :foreground nil
+                    :underline nil
+                    )
 
 ;;------------------------------------------------------------------
 ;; Key bindings
