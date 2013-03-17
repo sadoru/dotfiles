@@ -23,3 +23,4 @@ ac-comphist.dat
 .emacs.d/url/cookies
 
 .emacs.d/elpa/archives/gnu/archive-contents
+shellenv.el
