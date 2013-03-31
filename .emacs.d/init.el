@@ -313,6 +313,23 @@
                ))
   )
 
+;; (install-elisp-from-emacswiki "eldoc-extension.el")
+(when (require 'eldoc nil t)
+  (when (require 'eldoc-extension nil t)
+    (setq eldoc-idle-delay 0)
+    (setq eldoc-echo-area-use-multiline-p t)
+    (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+    (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+    )
+  (when (require 'c-eldoc nil t)
+    (add-hook 'c-mode-common-hook
+              (lambda ()
+                (set (make-local-variable 'eldoc-idle-delay) 0.20)
+                (c-turn-on-eldoc-mode)
+                ))
+    )
+  )
+
 ;;------------------------------------------------------------------
 ;; C++
 ;;------------------------------------------------------------------
