@@ -170,6 +170,8 @@
 ;; "C-t"でウィンドウを切り替える
 (define-key global-map (kbd "C-t") 'other-window)
 
+(global-set-key (kbd "C-x C-x") 'compile)
+
 ;;------------------------------------------------------------------
 ;; auto-complete
 ;;------------------------------------------------------------------
@@ -298,7 +300,7 @@
            (local-set-key "\M-t" 'gtags-find-tag)
            (local-set-key "\M-r" 'gtags-find-rtag)
            (local-set-key "\M-s" 'gtags-find-symbol)
-           (local-set-key "\C-t" 'gtags-pop-stack)  ; カーソルの移動とかぶるので他のにしたい
+           (local-set-key "\M-o" 'gtags-pop-stack)
 
            (setq gtags-path-style 'relative)
            ))
