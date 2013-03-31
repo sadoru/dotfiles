@@ -125,17 +125,9 @@
 (set-frame-parameter (selected-frame) 'alpha '(95 80))
 
 ;; Color-theme
-(cond
- ((require 'solarized-dark-theme nil t))  ; default color
-; ((require 'solarized-light-theme nil t))
- ((require 'zenburn-theme nil t))
- ((require 'molokai-theme nil t))
-;;  ((when (require 'color-theme nil t)
-;;     (color-theme-subtle-hacker) ; 2nd color
-;; ;         (color-theme-billw)
-;; ;         (color-theme-clarity)
-;;     ))
-)
+;(load-theme 'molokai t)
+(load-theme 'solarized-dark t)
+;(load-theme 'misterioso t)
 
 ;; タイトルバーにファイルのフルパスを表示
 (setq frame-title-format "%f")
