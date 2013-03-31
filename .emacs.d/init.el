@@ -138,16 +138,6 @@
   (setq linum-format "%5d"))
 
 ;; 現在行のハイライト
-(defface my-hl-line-face
-  ;; 背景がdarkなら背景色を紺に
-  '((((class color) (background dark))
-     (:background "NavyBlue" t))
-    ;;背景がlightならば背景色を緑に
-    (((class color) (background light))
-     (:background "LightGoldenrodYellow" t))
-    (t (:bold t)))
-  "hi-line's my face")
-(setq hl-line-face 'my-hl-line-face)
 (global-hl-line-mode t)
 
 ;; リージョンをハイライト
@@ -158,11 +148,9 @@
 (setq show-paren-delay 0) ; 表示までの秒数
 ;(setq show-paren-style 'expression)  ; とにかく強調表示
 (setq show-paren-style 'parenthesis)  ; 強調表示のみ
-(set-face-attribute 'show-paren-match-face nil
-                    :background nil
-                    :foreground nil
-                    :underline nil
-                    )
+;(set-face-background 'show-paren-match-face nil)
+;(set-face-underline 'show-paren-match-face "yellow")
+;(set-face-underline-p 'show-paren-match-face "yellow")
 
 ;;------------------------------------------------------------------
 ;; Key bindings
