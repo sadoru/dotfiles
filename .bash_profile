@@ -1,4 +1,5 @@
 export PATH=/usr/local/bin:$PATH
+export EDITOR="emacsclient"
 
 alias ls="ls -G"
 alias ll="la -l"
@@ -14,8 +15,11 @@ alias jenkins="java -jar /usr/local/Cellar/jenkins/1.504/libexec/jenkins.war"
 
 alias htdocs="cd /Applications/MAMP/htdocs"
 
-alias emacs="open -a Emacs"
+alias Emacs="open -a /Applications/Emacs.app"
+#alias emacs="open -a Emacs"
 
+# Bash completion script for brew(1)n
+. $(brew --repository)/Library/Contributions/brew_bash_completion.sh
 
 ## git
 if [ -f /opt/local/share/doc/git-core/contrib/completion/git-completion.bash ]; then
