@@ -172,6 +172,14 @@
 
 (global-set-key (kbd "C-x C-x") 'compile)
 
+(global-set-key (kbd "\C-o") 'anything)
+
+;; flymake - M-p/M-nで次の警告、エラー行の移動
+(global-set-key "\M-p" 'flymake-goto-prev-error)
+(global-set-key "\M-n" 'flymake-goto-next-error)
+
+
+
 ;;------------------------------------------------------------------
 ;; auto-complete
 ;;------------------------------------------------------------------
@@ -200,7 +208,6 @@
 ;;------------------------------------------------------------------
 ;; (auto-install-batch "anything")
 (when (require 'anything nil t)
-  (global-set-key (kbd "\C-x b") 'anything)
   (setq
    ;; 候補を表示するまでの時間。デフォルトは0.5
    anything-idle-delay 0.3
@@ -423,9 +430,6 @@
 (require 'flymake)
 ;; 全てのファイルでflymakeを有効化
 (add-hook 'find-file-hook 'flymake-find-file-hook)
-;; M-p/M-nで次の警告、エラー行の移動
-(global-set-key "\M-p" 'flymake-goto-prev-error)
-(global-set-key "\M-n" 'flymake-goto-next-error)
 
 (add-hook 'c-mode-common-hook
           '(lambda()
