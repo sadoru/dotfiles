@@ -1,8 +1,9 @@
 ;; load environment value  ; http://d.hatena.ne.jp/syohex/20111117/1321503477
-(when (load-file (expand-file-name "~/.emacs.d/conf/shellenv.el"))
-  (dolist (path (reverse (split-string (getenv "PATH")":")))
-    (add-to-list 'exec-path path))
-  )
+(when (eq system-type 'darwin)
+  (when (load-file (expand-file-name "~/.emacs.d/conf/shellenv.el"))
+    (dolist (path (reverse (split-string (getenv "PATH")":")))
+      (add-to-list 'exec-path path))
+    ))
 
 ;; Emacs 23以前ではuser-emacs-directoryが未定義のため設定を追加しておく
 (when (< emacs-major-version 23)
@@ -127,7 +128,6 @@
 ;; Color-theme
 ;(load-theme 'molokai t)
 (load-theme 'solarized-dark t)
-;(load-theme 'misterioso t)
 
 ;; タイトルバーにファイルのフルパスを表示
 (setq frame-title-format "%f")
@@ -152,6 +152,44 @@
 ;(set-face-underline 'show-paren-match-face "yellow")
 ;(set-face-underline-p 'show-paren-match-face "yellow")
 
+;; direx (dired)  ; http://cx4a.blogspot.jp/2011/12/popwineldirexel.html
+(require 'direx)
+
+;; pop-win  ; http://d.hatena.ne.jp/m2ym/20110120/1295524932
+(require 'popwin)
+(setq display-buffer-function 'popwin:display-buffer)
+;(push '(dired-mode :position top) popwin:special-display-config)  ; diredの設定
+(push '(direx:direx-mode :position left :width 30 :dedicated t) popwin:special-display-config) ; direx
+(push '("*anything*" :height 30) popwin:special-display-config)  ; anythingの設定
+
+
+;;------------------------------------------------------------------
+;; ２分割した画面を入替える ; http://www.bookshelf.jp/soft/meadow_30.html#SEC403
+;;------------------------------------------------------------------
+(defun swap-screen()
+  "Swap two screen, leaving cursor at current window."
+  (interactive)
+  (let ((thiswin (selected-window))
+        (nextbuf (window-buffer (next-window))))
+    (set-window-buffer (next-window) (window-buffer))
+    (set-window-buffer  thiswin nextbuf)))
+(defun swap-screen-with-cursor()
+  "Swap two screen, with cursor in same buffer."
+  (interactive)
+  (let ((thiswin (selected-window))
+        (thisbuf (window-buffer)))
+    (other-window 1)
+    (set-window-buffer thiswin (window-buffer))
+    (set-window-buffer (selected-window) thisbuf)))
+
+;;------------------------------------------------------------------
+;; 日付の挿入 http://d.hatena.ne.jp/CortYuming/20101125/p1
+;;------------------------------------------------------------------
+(defun my-insert-date ()
+  (interactive)
+  (insert (concat
+           "" (format-time-string "%Y-%m-%d"))))
+
 ;;------------------------------------------------------------------
 ;; Key bindings
 ;;------------------------------------------------------------------
@@ -163,6 +201,8 @@
   ;(global-set-key (kbd "C-.") 'redo)
   )
 
+(global-set-key (kbd "\C-o") 'anything)
+
 ;; C-mにnewline-and-indent
 (global-set-key (kbd "C-m") 'newline-and-indent)
 ;; 折り返しトグルコマンド
@@ -170,14 +210,26 @@
 ;; "C-t"でウィンドウを切り替える
 (define-key global-map (kbd "C-t") 'other-window)
 
-(global-set-key (kbd "C-x C-x") 'compile)
+;; ウィンドウの入替え
+(global-set-key [f2] 'swap-screen)
+(global-set-key [S-f2] 'swap-screen-with-cursor)
 
-(global-set-key (kbd "\C-o") 'anything)
+;; anythin-imenu
+(define-key global-map (kbd "C-.") 'anything-imenu)
+
+;; direx(dired)
+;(global-set-key (kbd "C-x C-j") 'direx:jump-to-directory)
+;(global-set-key (kbd "C-x C-j") 'direx:jump-to-directory-other-window)
+(define-key global-map (kbd "C-x C-j") 'direx:jump-to-directory-other-window)
+
+;; 日付の挿入
+(define-key global-map (kbd "\C-cs") 'my-insert-date)
 
 ;; flymake - M-p/M-nで次の警告、エラー行の移動
 (global-set-key "\M-p" 'flymake-goto-prev-error)
 (global-set-key "\M-n" 'flymake-goto-next-error)
 
+(global-set-key (kbd "C-x C-x") 'compile)
 
 
 ;;------------------------------------------------------------------
