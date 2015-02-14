@@ -1,6 +1,9 @@
 export PATH=/usr/local/bin:$PATH
 export EDITOR="emacsclient"
 
+#Cpputest
+export CPPUTEST_HOME=/usr/local/Cellar/cpputest/3.6
+
 alias ls="ls -G"
 alias ll="la -l"
 alias la="ls -a"
@@ -11,7 +14,7 @@ alias cd..="cd ../../"
 alias javac='javac -J-Dfile.encoding=UTF-8'
 alias java='java -Dfile.encoding=UTF-8'
 
-alias jenkins="java -jar /usr/local/Cellar/jenkins/1.504/libexec/jenkins.war"
+alias jenkins="java -jar /usr/local/Cellar/jenkins/1.569/libexec/jenkins.war"
 
 alias htdocs="cd /Applications/MAMP/htdocs"
 
@@ -30,3 +33,4 @@ fi
 perl -wle \
     'do {print qq/(setenv "$_" "$ENV{$_}")/if exists $ENV{$_}} for @ARGV' \
     PATH > ~/.emacs.d/conf/shellenv.el
+eval "$(rbenv init -)"
